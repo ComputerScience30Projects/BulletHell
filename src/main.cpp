@@ -1,8 +1,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <iostream>
+
 #include "Error.h"
 #include "RenderWindow.h"
+#include "Entity.h"
 
 int main(int argc, char* args[])
 {
@@ -16,8 +17,14 @@ int main(int argc, char* args[])
 
     RenderWindow window("Bullet Hell", 1280, 720);
     
+    /*Load Player*/
+    SDL_Texture* playerTexture = window.loadTexture("res/gfx/ground_grass_1.png");
+
+    Entity player(100, 50, playerTexture);
+
     /*Game Loop*/
     bool gameRunning = true;
+    
     SDL_Event event;
 
     while (gameRunning)
@@ -27,6 +34,12 @@ int main(int argc, char* args[])
             if(event.type == SDL_QUIT)
                 gameRunning = false;
         }
+
+        window.clear();
+
+        window.render(player);
+
+        window.display();
     }
     
     window.cleanUp();

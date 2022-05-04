@@ -3,4 +3,6 @@
 #include <string>
 #include <iostream>
 
-extern void Error(std::string error);
+extern void errorSDL(std::string error);
+
+extern void error(std::string error);

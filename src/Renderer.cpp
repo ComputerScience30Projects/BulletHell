@@ -11,10 +11,15 @@ void Renderer::initWindow(const char* p_title, int p_w, int p_h)
 	_window = SDL_CreateWindow(p_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, p_w, p_h, SDL_WINDOW_SHOWN);
 
 	if (_window == NULL)
-		Error("Window failed to init.");
+		errorSDL("Window failed to initialize.");
 
 	/*Create Renderer*/
 	_renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			
+	if (_renderer == NULL)
+		errorSDL("Renderer failed to initialize.");
+	
+	SDL_SetRenderDrawColor(_renderer, 255, 255, 255, 255);
 }
 
 SDL_Texture* Renderer::loadTexture(const char* p_filePath)
@@ -23,7 +28,7 @@ SDL_Texture* Renderer::loadTexture(const char* p_filePath)
 	texture = IMG_LoadTexture(_renderer, p_filePath);
 
 	if (texture == NULL)
-		Error("Failed to load texture.");
+		errorSDL("Failed to load texture.");
 
 	return texture;
 }

@@ -1,61 +1,51 @@
-#include "Player.h"
+#include "Bullet.h"
 
-void Player::init(float p_speed, Vector2f p_position)
+Bullet::Bullet(Vector2f p_position, Vector2f p_direction, SDL_Texture* p_texture, size_t p_w, size_t p_h):
+    _position(p_position),
+	_texture(p_texture),
+	_direction(p_direction)
 {
-    setPosition(p_position);
-    _speed = p_speed;
+    std::cout << std::to_string(_position.x) << " " << std::to_string(_position.y) << std::endl;
+
+	_currentFrame.x = 0;
+	_currentFrame.y = 0;
+	_currentFrame.w = p_w;
+	_currentFrame.h = p_h;
 }
 
-void Player::update(InputManager &p_inputManager, const std::vector<std::string>& p_levelData)
+bool Bullet::update(const std::vector<std::string>& p_levelData)
 {
-    int mouseCoord_x, mouseCoord_y;
-    SDL_GetMouseState(&mouseCoord_x, &mouseCoord_y);
-    p_inputManager.setMouseCoordinates((float)mouseCoord_x, (float)mouseCoord_y);
+    /* Move Bullet */
+    _position = _position + Vector2f(_direction.x * _speed, _direction.y * _speed);
+    return levelCollision(p_levelData);
+}   
 
-    Vector2f delta(getPosition().x - mouseCoord_x, getPosition().y - mouseCoord_y);
-
-    setAngle((atan2(-delta.y, -delta.x) * 180.0000)/ 3.14159265);
-
-    /*Move Player Using WASD*/
-    if (p_inputManager.isKeyPressed(SDLK_w))
-        setY(getPosition().y - _speed);
-    else if (p_inputManager.isKeyPressed(SDLK_s))
-        setY(getPosition().y + _speed);
-    if (p_inputManager.isKeyPressed(SDLK_a))
-        setX(getPosition().x - _speed);
-    else if (p_inputManager.isKeyPressed(SDLK_d))
-        setX(getPosition().x + _speed);
-
-    levelCollision(p_levelData);
-}
-
-bool Player::levelCollision(const std::vector<std::string> &p_levelData)
+bool Bullet::levelCollision(const std::vector<std::string> &p_levelData)
 {
-    Vector2f position = getPosition();
 
     std::vector<Vector2f> collideTilePositions;
 
     /* Check Four Corners */
     checkTilePosition(p_levelData,
                       collideTilePositions,
-                      position.x,
-                      position.y);
+                      _position.x,
+                      _position.y);
 
     checkTilePosition(p_levelData,
                       collideTilePositions,
-                      position.x + AGENT_WIDTH,
-                      position.y);
+                      _position.x + AGENT_WIDTH,
+                      _position.y);
 
 
     checkTilePosition(p_levelData,
                       collideTilePositions,
-                      position.x,
-                      position.y + AGENT_WIDTH);
+                      _position.x,
+                      _position.y + AGENT_WIDTH);
 
     checkTilePosition(p_levelData,
                       collideTilePositions,
-                      position.x + AGENT_WIDTH,
-                      position.y + AGENT_WIDTH);
+                      _position.x + AGENT_WIDTH,
+                      _position.y + AGENT_WIDTH);
     
     /* Check if there is No Collisions */
     if (collideTilePositions.size() == 0)
@@ -64,11 +54,11 @@ bool Player::levelCollision(const std::vector<std::string> &p_levelData)
     /* Do the Collisions */
     for (size_t i = 0; i < collideTilePositions.size(); i++)
         collideWithTile(collideTilePositions[i]);
-        
+
     return true;
 }
 
-void Player::checkTilePosition(const std::vector<std::string> &p_levelData, std::vector<Vector2f> &p_collideTilePositions, float p_x, float p_y) 
+void Bullet::checkTilePosition(const std::vector<std::string> &p_levelData, std::vector<Vector2f> &p_collideTilePositions, float p_x, float p_y) 
 {
     /* Get the position of this corner in grid-space */
     Vector2f gridPosition = Vector2f(floor(p_x / (float)TILE_WIDTH), floor(p_y / (float)TILE_WIDTH));
@@ -83,17 +73,15 @@ void Player::checkTilePosition(const std::vector<std::string> &p_levelData, std:
 }
 
 // Axis Aligned Bounding Box Collision from MakingGamesWithBen Tutorial
-void Player::collideWithTile(Vector2f p_tilePos) 
+void Bullet::collideWithTile(Vector2f p_tilePos) 
 {
-    Vector2f position = getPosition();
-
     const float TILE_RADIUS = (float)TILE_WIDTH / 2.0f;
 
     /* The minimum distance before a collision occurs */
     const float MIN_DISTANCE = AGENT_RADIUS + TILE_RADIUS;
 
     /* Get Center position of the Agent */
-    Vector2f centerAgentPosition(position.x + AGENT_RADIUS, position.y + AGENT_RADIUS);
+    Vector2f centerAgentPosition(_position.x + AGENT_RADIUS, _position.y + AGENT_RADIUS);
 
     /* Vector From the Agent to the Tile */
     Vector2f distanceVector = centerAgentPosition - p_tilePos;
@@ -111,17 +99,17 @@ void Player::collideWithTile(Vector2f p_tilePos)
         {
             /* X Depth is smaller so Push X Direction */
             if (distanceVector.x < 0) 
-                setX(position.x - xDepth);
+                _position.x -= xDepth;
             else
-                setX(position.x + xDepth);
+                _position.x += xDepth;
         } 
         else 
         {
             /* Y Depth is smaller so Push Y Direction */
             if (distanceVector.y < 0)
-                setY(position.y - yDepth);
+                _position.y -= yDepth;
             else
-                setY(position.y + yDepth);
+                _position.y += yDepth;
         }
     }
 }

@@ -2,11 +2,11 @@
 
 
 MainGame::MainGame():
-    _screenWidth(1280), _screenHeight(720), 
+    _screenWidth(1280), _screenHeight(704), 
     _gameState(PLAY),
-    _player(nullptr)
+    _player(nullptr),
+    _bulletLimiter(0)
 {
-
 }
 
 void MainGame::run()
@@ -23,7 +23,7 @@ void MainGame::initSystems()
 
     /*Initialize SDL_IMG*/
 	if (!(IMG_Init(IMG_INIT_PNG)))
-		errorSDL("IMG_init has failed.");
+		errorSDL("IMG_Init has failed.");
 
     /*Initialize Window and Renderer*/
     _renderer.initWindow("Survival", _screenWidth, _screenHeight);
@@ -51,7 +51,7 @@ void MainGame::initLevel(std::string p_filepath)
     SDL_Texture* glass = _renderer.loadTexture("res/gfx/LevelTiles/glass.png");
     SDL_Texture* lightBrick = _renderer.loadTexture("res/gfx/LevelTiles/light_bricks.png");
     SDL_Texture* playerTex = _renderer.loadTexture("res/gfx/player.png");
-
+    
     /*Interpret the Data and Render the Tiles*/
     for (size_t y = 0; y < _levelData.size(); y++) 
         for (size_t x = 0; x < _levelData[y].size(); x++) 
@@ -96,12 +96,13 @@ void MainGame::initLevel(std::string p_filepath)
         }
 }
 
-
 void MainGame::processInput() 
 {
+    /* SDL Poll Event */
     SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        switch (event.type) {
+    while (SDL_PollEvent(&event))
+        switch (event.type) 
+        {
             case SDL_QUIT:
                 _gameState = EXIT;
                 break;
@@ -118,7 +119,12 @@ void MainGame::processInput()
                 _inputManager.releaseKey(event.button.button);
                 break;
         }
-    }
+
+    /* Get Mouse Position */
+    int x,y;
+
+    SDL_GetGlobalMouseState(&x,&y);
+    _inputManager.setMouseCoordinates((float)x, (float)y);
 }
 
 void MainGame::gameloop()
@@ -132,8 +138,23 @@ void MainGame::gameloop()
 	{
         while (!_timeStep.isAccumulatorFull())
         {
+            for (Bullet &bullet : _bullets)
+            {
+                if(bullet.update(_levelData))
+                {
+                    bullet = _bullets.back();
+				    _bullets.pop_back();
+                }
+            }
+
             processInput();
-            _player->update(_inputManager);
+            _player->update(_inputManager, _levelData);
+            
+            if (_inputManager.isKeyPressed(SDL_BUTTON_LEFT) && _bulletLimiter-- <= 0)
+            {
+                _bullets.push_back(Bullet(_player->getPosition() + Vector2f(10, 10), _inputManager.getMouseCoordinates() - _player->getPosition(), _renderer.loadTexture("res/gfx/circle.png"), 15, 15));
+                _bulletLimiter = 10;
+            }
             _timeStep.addToAccumulator();
         }       
         _timeStep.resetAccumulator();
@@ -143,8 +164,11 @@ void MainGame::gameloop()
 		
         for(Entity &entity : _entities)
 		    _renderer.render(entity);
-        
-        _renderer.render(*_player);
+
+        for(Bullet &bullet: _bullets)
+            _renderer.renderBullet(bullet);
+                    
+        _renderer.renderRotating(*_player);
         		
         _renderer.display();
 	}

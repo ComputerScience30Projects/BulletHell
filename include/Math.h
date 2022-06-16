@@ -19,3 +19,13 @@ struct Vector2f
 
     float x, y;
 };
+
+inline Vector2f operator + (const Vector2f &vec1, const Vector2f &vec2)
+{
+    return Vector2f(vec1.x + vec2.x, vec1.y + vec2.y);
+}
+
+inline Vector2f operator - (const Vector2f &vec1, const Vector2f &vec2)
+{
+    return Vector2f(vec1.x - vec2.x, vec1.y - vec2.y);
+}

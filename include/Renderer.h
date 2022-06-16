@@ -3,6 +3,7 @@
 #include <SDL2/SDL_image.h>
 
 #include "Entity.h"
+#include "Bullet.h"
 #include "Error.h"
 
 class Renderer
@@ -17,6 +18,9 @@ public:
 	void cleanUp();
 	void clear();
 	void render(Entity &p_entity);
+	void renderRotating(Entity &p_entity);
+	void renderBullet(Bullet &p_entity);
+
 	void display();
 
 private:

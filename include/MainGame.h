@@ -12,10 +12,9 @@
 #include "Math.h"
 #include "Utils.h"
 #include "InputManager.h"
+#include "Bullet.h"
 
 enum GameState {MENU, PLAY, EXIT};
-
-const size_t TILE_WIDTH = 32;
 
 const float PLAYER_SPEED = 5.0f;
 const float HUMAN_SPEED = 3.0f;
@@ -33,26 +32,30 @@ private:
     void processInput();
     void gameloop();
 
-    /*Window and Rendering*/
+    /* Window and Rendering */
     Renderer _renderer;
     std::vector<Entity> _entities;
 
     size_t _screenWidth;
     size_t _screenHeight;
     
-    /*Timestepping*/
+    /* Timestepping */
     TimeStep _timeStep;
 
-    /*Game State*/
+    /* Game State */
     GameState _gameState;
 
-    /*Input Manager*/
+    /* Input Manager */
     InputManager _inputManager;
     
-    /*Level Data*/
+    /* Level Data */
     std::vector<std::string> _levelData;
 
-    /*Player*/
+    /* Player */
     Player* _player;
+
+    /* Bullets */
+    std::vector<Bullet> _bullets;
+    unsigned int _bulletLimiter;
 
 };

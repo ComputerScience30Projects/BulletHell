@@ -60,6 +60,41 @@ void Renderer::render(Entity& p_entity)
 	SDL_RenderCopy(_renderer, p_entity.getTexture(), &src, &dst);
 }
 
+void Renderer::renderBullet(Bullet &p_entity)
+{
+	SDL_Rect src; 
+	src.x = p_entity.getCurrentFrame().x;
+	src.y = p_entity.getCurrentFrame().y;
+	src.w = p_entity.getCurrentFrame().w;
+	src.h = p_entity.getCurrentFrame().h;
+
+	SDL_Rect dst;
+	dst.x = p_entity.getPosition().x;
+	dst.y = p_entity.getPosition().y;
+	dst.w = p_entity.getCurrentFrame().w;
+	dst.h = p_entity.getCurrentFrame().h;
+
+	SDL_RenderCopy(_renderer, p_entity.getTexture(), &src, &dst);
+}
+
+
+void Renderer::renderRotating(Entity &p_entity)
+{
+	SDL_Rect src; 
+	src.x = p_entity.getCurrentFrame().x;
+	src.y = p_entity.getCurrentFrame().y;
+	src.w = p_entity.getCurrentFrame().w;
+	src.h = p_entity.getCurrentFrame().h;
+
+	SDL_Rect dst;
+	dst.x = p_entity.getPosition().x;
+	dst.y = p_entity.getPosition().y;
+	dst.w = p_entity.getCurrentFrame().w;
+	dst.h = p_entity.getCurrentFrame().h;
+
+	SDL_RenderCopyEx(_renderer, p_entity.getTexture(), &src, &dst, p_entity.getAngle(), NULL, SDL_FLIP_NONE);
+}
+
 void Renderer::display()
 {
 	SDL_RenderPresent(_renderer);

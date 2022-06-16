@@ -1,10 +1,5 @@
 #include "Entity.h"
 
-
-Entity::Entity()
-{
-}
-
 Entity::Entity(Vector2f p_position, SDL_Texture* p_texture, size_t p_w, size_t p_h):
     _position(p_position),
 	_texture(p_texture)
